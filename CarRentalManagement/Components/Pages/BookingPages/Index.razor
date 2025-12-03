@@ -1,4 +1,5 @@
 ﻿@page "/bookings"
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
 @using CarRentalManagement.Domain
@@ -6,6 +7,7 @@
 @implements IAsyncDisposable
 @inject IDbContextFactory<CarRentalManagement.Data.CarRentalManagementContext> DbFactory
 
+@attribute [Authorize(Roles = "Administrator, User")]
 <PageTitle>Index</PageTitle>
 
 <h1>Index</h1>

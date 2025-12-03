@@ -33,7 +33,9 @@ builder.Services.AddAuthentication(options =>
     })
     .AddIdentityCookies();
 
+// Register Identity and role services. AddRoles<T> ensures RoleManager and role stores are registered.
 builder.Services.AddIdentityCore<CarRentalManagementUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<CarRentalManagementContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
@@ -42,7 +44,7 @@ builder.Services.AddSingleton<IEmailSender<CarRentalManagementUser>, IdentityNoO
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+ // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);

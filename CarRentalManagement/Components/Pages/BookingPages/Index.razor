@@ -16,7 +16,7 @@
     <a href="bookings/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="context.Booking">
+<QuickGrid Class="table" Items="FilteredBookings">
     <PropertyColumn Property="booking => booking.DateOut" />
     <PropertyColumn Property="booking => booking.DateIn" />
     <PropertyColumn Property="booking => booking.VehicleId" />
@@ -30,14 +30,30 @@
         <a href="@($"bookings/edit?id={booking.Id}")">Edit</a> |
         <a href="@($"bookings/details?id={booking.Id}")">Details</a> |
         <a href="@($"bookings/delete?id={booking.Id}")">Delete</a>
+        <AuthorizeView Roles="Administrator">
+            | <a href="@($"bookings/delete?id={booking.Id}")">Delete</a>
+        </AuthorizeView>
     </TemplateColumn>
 </QuickGrid>
 
 @code {
     private CarRentalManagementContext context = default!;
+    private string userId = string.Empty;
+    private bool isAdmin = false;
+    @inject AuthenticationStateProvider authenticationStateProvider
+    // Filter bookings by userId
+    private IQueryable<Booking> FilteredBookings => isAdmin
+    ? context.Booking // Admins can see all bookings
+    : context.Booking.Where(e => e.CreatedBy == userId); // Regular users see only their own bookings
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        // Fetch the authentication state
+        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        // Extract user information
+        userId = user.FindFirst("userId")?.Value ?? string.Empty;
+        isAdmin = user.IsInRole("Administrator");
         context = DbFactory.CreateDbContext();
     }
 
